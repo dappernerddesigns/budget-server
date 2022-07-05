@@ -1,0 +1,9 @@
+Project: 
+- Get all users x
+- Get single user x
+- Post user  x
+- Patch user in progress but broken.
+- Get all pots by user
+- Post pot to user
+- Patch pot to user
+- Error handling
