@@ -51,3 +51,18 @@ exports.patchUser = (username, name, avatar_url, password, user_id) => {
 			return rows[0];
 		});
 };
+
+exports.fetchUserPots = (user_id) => {
+	return db
+		.query('SELECT * FROM pots WHERE owner_id = $1', [user_id])
+		.then(({ rows }) => {
+			if (rows.length === 0) {
+				console.log('in reject');
+				Promise.reject({
+					status: 404,
+					msg: 'No pots for this user',
+				});
+			}
+			return rows;
+		});
+};

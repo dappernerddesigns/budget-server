@@ -3,6 +3,7 @@ const app = require('../app');
 const seed = require('../db/seeds/seed.js');
 const request = require('supertest');
 const testData = require('../db/data/test-data/index');
+const { NoticeMessage } = require('pg-protocol/dist/messages');
 
 beforeEach(() => seed(testData));
 afterAll(() => db.end());
@@ -178,6 +179,48 @@ describe.skip('PATCH /api/users/:user', () => {
 			.expect(404)
 			.then(({ body }) => {
 				expect(body).toEqual({ msg: 'User not found' });
+			});
+	});
+});
+describe('GET /api/user/:user_id/pots', () => {
+	test('200: Returns the list of a users pots', () => {
+		return request(app)
+			.get('/api/users/1/pots')
+			.expect(200)
+			.then(({ body }) => {
+				const { pots } = body;
+				expect(pots).toHaveLength(2);
+				pots.forEach((pot) => {
+					expect(pot).toEqual(
+						expect.objectContaining({
+							pot_id: expect.any(Number),
+							pot_name: expect.any(String),
+							owner_id: expect.any(Number),
+							notes: expect.any(String),
+							goal: expect.any(Number),
+							starting_value: expect.any(Number),
+							current_value: expect.any(Number),
+						})
+					);
+				});
+			});
+	});
+	test('404: Returns a 404 for a valid request, but no user exists', () => {
+		return request(app)
+			.get('/api/users/999/pots')
+			.expect(200)
+			.then(({ body }) => {
+				console.log(body);
+				expect(body).toEqual({ msg: 'User not found in database' });
+			});
+	});
+	test('404: Returns a 404 for a valid user with no pots', () => {
+		return request(app)
+			.get('/api/users/3/pots')
+			.expect(200)
+			.then(({ body }) => {
+				console.log(body);
+				expect(body).toEqual({ msg: 'No pots for this user' });
 			});
 	});
 });

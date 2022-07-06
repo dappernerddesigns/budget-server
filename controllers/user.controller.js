@@ -3,6 +3,7 @@ const {
 	fetchUser,
 	postUser,
 	patchUser,
+	fetchUserPots,
 } = require('../models/user.model');
 
 exports.getAllUsers = (req, res, next) => {
@@ -41,4 +42,12 @@ exports.updateUser = (req, res, next) => {
 			res.status(200).send({ user: response });
 		})
 		.catch(next);
+};
+
+exports.getAllPots = (req, res, next) => {
+	const { user_id } = req.params;
+
+	fetchUserPots(user_id).then((response) => {
+		res.status(200).send({ pots: response });
+	});
 };
