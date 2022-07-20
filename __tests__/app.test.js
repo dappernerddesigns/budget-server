@@ -3,7 +3,7 @@ const app = require('../app');
 const seed = require('../db/seeds/seed.js');
 const request = require('supertest');
 const testData = require('../db/data/test-data/index');
-const { NoticeMessage } = require('pg-protocol/dist/messages');
+const { checkExists } = require('../utils/utilFunctions');
 
 beforeEach(() => seed(testData));
 afterAll(() => db.end());
@@ -137,27 +137,21 @@ describe('POST /api/users', () => {
 			});
 	});
 });
-describe.skip('PATCH /api/users/:user', () => {
+describe('PATCH /api/users/:user', () => {
 	test('200:User password is updated', () => {
-		const columnToUpdate = 'password';
-		const updatedPassword = 'pAssW0rd';
-		const data = { password: updatedPassword };
+		const data = { password: 'pAssW0rd' };
 		return request(app)
 			.patch('/api/users/1')
 			.send(data)
 			.expect(200)
 			.then(({ body }) => {
 				const { user } = body;
+
 				expect(user.password).toBe('pAssW0rd');
 			});
 	});
 	test('400:Returns invalid input for missing data', () => {
-		const updatedUser = {
-			username: 'mallionaire',
-			avatar_url:
-				'https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg',
-			password: 'pAssW0rd',
-		};
+		const updatedUser = {};
 		return request(app)
 			.patch('/api/users/1')
 			.send(updatedUser)
@@ -169,9 +163,6 @@ describe.skip('PATCH /api/users/:user', () => {
 	test('404:Returns 404 for a user id that does not exist yet', () => {
 		const newUser = {
 			username: 'Magical_Trevor',
-			name: 'Verity',
-			avatar_url: 'https://avatars.githubusercontent.com/u/66881163?v=4',
-			password: 'Trev',
 		};
 		return request(app)
 			.patch('/api/users/999')
@@ -205,22 +196,87 @@ describe('GET /api/user/:user_id/pots', () => {
 				});
 			});
 	});
-	test('404: Returns a 404 for a valid request, but no user exists', () => {
+	test.skip('404: Returns a 404 for a valid request, but no user exists', () => {
 		return request(app)
 			.get('/api/users/999/pots')
-			.expect(200)
+			.expect(404)
 			.then(({ body }) => {
-				console.log(body);
 				expect(body).toEqual({ msg: 'User not found in database' });
 			});
 	});
-	test('404: Returns a 404 for a valid user with no pots', () => {
+	test('200: Returns a 200 for a valid user with no pots', () => {
 		return request(app)
 			.get('/api/users/3/pots')
 			.expect(200)
 			.then(({ body }) => {
-				console.log(body);
-				expect(body).toEqual({ msg: 'No pots for this user' });
+				expect(body).toEqual({ pots: [] });
 			});
 	});
 });
+describe('POST /api/users/:user_id/pots', () => {
+	test('201: Responds with newly created pot', () => {
+		const newPot = {
+			pot_name: 'Cash',
+			owner_id: '1',
+			notes: 'Takeout pot',
+			goal: 500,
+			starting_value: 500,
+			current_value: 500,
+		};
+		return request(app)
+			.post('/api/users/1/pots')
+			.send(newPot)
+			.expect(201)
+			.then(({ body }) => {
+				const { pot } = body;
+				expect(pot).toEqual(
+					expect.objectContaining({
+						pot_id: expect.any(Number),
+						pot_name: expect.any(String),
+						owner_id: expect.any(Number),
+						notes: expect.any(String),
+						goal: expect.any(Number),
+						starting_value: expect.any(Number),
+						current_value: expect.any(Number),
+					})
+				);
+			});
+	});
+});
+describe('PATCH /api/users/:user_id/:pot_id', () => {
+	test('200:Pot notes updated', () => {
+		const data = { notes: 'More information about this pot.' };
+
+		return request(app)
+			.patch('/api/users/1/pots/1')
+			.send(data)
+			.expect(200)
+			.then(({ body }) => {
+				const { pot } = body;
+				expect(pot.notes).toBe('More information about this pot.');
+			});
+	});
+	test('200:Pot current value updated', () => {
+		const data = { current_value: 5000 };
+
+		return request(app)
+			.patch('/api/users/1/pots/2')
+			.send(data)
+			.expect(200)
+			.then(({ body }) => {
+				const { pot } = body;
+
+				expect(pot.current_value).toBe(5000);
+			});
+	});
+	// test('');
+});
+// describe('Util functions', () => {
+// 	describe('Check exist function', () => {
+// 		test('Function returns true if user exists in database', () => {
+// 			const actual = checkExists(1);
+// 			const expected = true;
+// 			expect(actual).toBe(true);
+// 		});
+// 	});
+// });

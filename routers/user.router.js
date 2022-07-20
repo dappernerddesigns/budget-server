@@ -14,6 +14,6 @@ userRouter.route('/:user_id').get(getUser);
 userRouter.route('/').post(addUser);
 userRouter.route('/:user_id').patch(updateUser);
 userRouter.route('/:user_id/pots').get(getAllPots);
-// userRouter.route('/:user_id/pots').post(addPot);
-// userRouter.route('/:user_id/pots').patch(updatePot);
+userRouter.route('/:user_id/pots').post(addPot);
+userRouter.route('/:user_id/pots/:pot_id').patch(updatePot);
 module.exports = userRouter;
