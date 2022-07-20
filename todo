@@ -2,8 +2,8 @@ Project:
 - Get all users x
 - Get single user x
 - Post user  x
-- Patch user in progress but broken.
-- Get all pots by user
-- Post pot to user
-- Patch pot to user
-- Error handling
+- Patch user x
+- Get all pots by user x
+- Post pot to user x
+- Patch pot to user x
+- Error handling in progress

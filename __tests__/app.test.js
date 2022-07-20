@@ -271,12 +271,3 @@ describe('PATCH /api/users/:user_id/:pot_id', () => {
 	});
 	// test('');
 });
-// describe('Util functions', () => {
-// 	describe('Check exist function', () => {
-// 		test('Function returns true if user exists in database', () => {
-// 			const actual = checkExists(1);
-// 			const expected = true;
-// 			expect(actual).toBe(true);
-// 		});
-// 	});
-// });
